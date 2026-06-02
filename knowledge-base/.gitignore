@@ -1,0 +1,5 @@
+# Local-only mapping files (reverse engineering of anonymized identifiers)
+*.mapping.json
+
+# Embeddings index (ChromaDB files, contains raw text)
+embeddings/

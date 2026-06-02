@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Vlocity DataRaptor Transform DataPack Schema",
+  "description": "Schema for Vlocity / OmniStudio DataRaptor Transform DataPacks, supporting both managed package (%vlocity_namespace%) and native (OmniDataTransform) schema formats.",
+  "type": "object",
+  "required": [
+    "Name",
+    "Type",
+    "InputType",
+    "OutputType"
+  ],
+  "properties": {
+    "Name": {
+      "type": "string",
+      "description": "The name of the DataRaptor Transform, unique in the org."
+    },
+    "Type": {
+      "type": "string",
+      "enum": ["Transform"],
+      "description": "Must be 'Transform' for DataRaptor Transform."
+    },
+    "InputType": {
+      "type": "string",
+      "enum": ["JSON", "XML"],
+      "default": "JSON",
+      "description": "The type of input format accepted."
+    },
+    "OutputType": {
+      "type": "string",
+      "enum": ["JSON", "XML"],
+      "default": "JSON",
+      "description": "The type of output format produced."
+    },
+    "GlobalKey": {
+      "type": "string",
+      "description": "The global unique key for deployment/migration. Managed field: %vlocity_namespace%__GlobalKey__c, Native field: GlobalKey."
+    },
+    "IgnoreErrors": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to ignore errors for individual mapping rows. Managed field: %vlocity_namespace%__IgnoreErrors__c, Native field: IsErrorIgnored."
+    },
+    "OverwriteAllNullValues": {
+      "type": "boolean",
+      "default": false,
+      "description": "Include null values in save operation. Managed field: %vlocity_namespace%__OverwriteAllNullValues__c, Native field: IsNullInputsIncludedInOutput."
+    },
+    "Mappings": {
+      "type": "array",
+      "description": "List of mapping items defining target JSON reshapes.",
+      "items": {
+        "type": "object",
+        "required": [
+          "DomainObjectAPIName",
+          "InterfaceFieldAPIName"
+        ],
+        "properties": {
+          "DomainObjectAPIName": {
+            "type": "string",
+            "description": "The target JSON node/path to map into, e.g. 'OutputList:Phone', 'Output:Name'. Managed field: %vlocity_namespace%__DomainObjectAPIName__c, Native field: DomainObjectAPIName."
+          },
+          "InterfaceFieldAPIName": {
+            "type": "string",
+            "description": "The input JSON path mapping source, e.g. 'InputList:Phone', 'InputName' or formula string. Managed field: %vlocity_namespace%__InterfaceFieldAPIName__c, Native field: InterfaceFieldAPIName."
+          },
+          "IsDisabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this mapping item is currently disabled. Managed field: %vlocity_namespace%__IsDisabled__c, Native field: IsDisabled."
+          }
+        }
+      }
+    }
+  }
+}

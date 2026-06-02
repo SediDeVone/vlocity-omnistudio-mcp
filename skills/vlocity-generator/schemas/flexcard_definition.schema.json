@@ -1,0 +1,366 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "flexcard_definition.schema.json",
+  "title": "FlexCard Definition Schema",
+  "description": "Documents the JSON structure of a Vlocity/OmniStudio FlexCard DataPack definition file. FlexCards are low-code UI components that display data in context-driven layouts with conditional states, actions, and child card composition.",
+  "topLevel": {
+    "description": "Top-level fields in the FlexCard DataPack JSON.",
+    "fields": {
+      "Name": {
+        "type": "string",
+        "required": true,
+        "description": "Developer name / API name of the FlexCard. Used as the LWC component name when activated."
+      },
+      "Author": {
+        "type": "string",
+        "required": false,
+        "description": "The author or team that created this FlexCard."
+      },
+      "isFlex": {
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "When true, this is a FlexCard (as opposed to an older Card type). Should always be true for modern OmniStudio FlexCards."
+      },
+      "isRepeatable": {
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "When true, this FlexCard iterates over a list of records from its data source and renders one card per record."
+      },
+      "enableLwc": {
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Enables LWC compilation/activation for this card. When true, a compiled LWC is generated and deployed."
+      },
+      "osSupport": {
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "When true, this FlexCard supports embedding within OmniScripts."
+      },
+      "globalCSS": {
+        "type": "string",
+        "required": false,
+        "default": "",
+        "description": "Custom CSS string applied globally to this FlexCard's rendered component. Used for card-level style overrides."
+      },
+      "version": {
+        "type": "integer",
+        "required": false,
+        "default": 1,
+        "description": "Version number of the FlexCard definition. Incremented on each save."
+      },
+      "GlobalKey": {
+        "type": "string",
+        "required": false,
+        "description": "Unique GUID used by the DataPack framework to track this FlexCard across orgs and deployments."
+      }
+    }
+  },
+  "dataSource": {
+    "description": "Defines where the FlexCard fetches its data from. The dataSource block configures the data query executed when the card is loaded.",
+    "fields": {
+      "type": {
+        "type": "string",
+        "required": true,
+        "enum": ["Custom", "DataRaptor", "IntegrationProcedure", "SOQL", "Apex"],
+        "description": "The data source type. 'DataRaptor' uses a DataRaptor Extract bundle. 'IntegrationProcedure' calls an IP. 'Custom' uses a custom Apex class. 'SOQL' runs a direct SOQL query."
+      },
+      "value": {
+        "type": "string",
+        "required": true,
+        "description": "The identifier of the data source. For DataRaptor: bundle API name. For IntegrationProcedure: Type_SubType key. For SOQL: the SOQL query string."
+      },
+      "contextVariables": {
+        "type": "array",
+        "required": false,
+        "default": [],
+        "description": "Array of context variable mappings passed to the data source. Each item maps a card context variable (e.g., recordId) to an input key for the data source.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Input key name for the data source."
+            },
+            "value": {
+              "type": "string",
+              "description": "Context variable or value to pass. Common values: '{recordId}', '{userId}', '{objectApiName}'."
+            }
+          }
+        }
+      },
+      "orderBy": {
+        "type": "string",
+        "required": false,
+        "default": "",
+        "description": "Field name to sort data source results by (for list/repeatable cards)."
+      },
+      "orderDirection": {
+        "type": "string",
+        "required": false,
+        "default": "ASC",
+        "enum": ["ASC", "DESC"],
+        "description": "Sort direction for orderBy."
+      },
+      "limit": {
+        "type": "integer",
+        "required": false,
+        "default": null,
+        "description": "Maximum number of records to fetch from the data source."
+      }
+    }
+  },
+  "states": {
+    "description": "Array of state definitions. A FlexCard can have multiple states that render different layouts/content based on data conditions. The first matching state is rendered.",
+    "type": "array",
+    "items": {
+      "name": {
+        "type": "string",
+        "required": true,
+        "description": "Unique state identifier. The default/initial state is usually named 'baseState' or 'default'."
+      },
+      "label": {
+        "type": "string",
+        "required": false,
+        "description": "Human-readable label for this state, shown in the designer."
+      },
+      "filter": {
+        "type": "string",
+        "required": false,
+        "default": "",
+        "description": "Condition formula or filter expression that determines when this state is active. Evaluated against the card's data. If empty, state is always active."
+      },
+      "sobjectLabel": {
+        "type": "string",
+        "required": false,
+        "description": "Label of the SObject associated with this state (for record-detail cards)."
+      },
+      "actions": {
+        "type": "array",
+        "required": false,
+        "default": [],
+        "description": "Array of action definitions available in this state (displayed as buttons or menu items). See 'actions' schema for detail."
+      },
+      "childCards": {
+        "type": "array",
+        "required": false,
+        "default": [],
+        "description": "Array of embedded child FlexCard references to render within this state.",
+        "items": {
+          "name": {
+            "type": "string",
+            "description": "Developer name of the child FlexCard component."
+          },
+          "title": {
+            "type": "string",
+            "description": "Display title for this child card section."
+          }
+        }
+      },
+      "components": {
+        "type": "object",
+        "required": true,
+        "description": "The component tree for this state. Structured as nested layer objects. Top level is always 'layer-0' which contains child blocks and elements.",
+        "schema": {
+          "layer-0": {
+            "description": "Root layout layer. Contains a 'children' array of block/element definitions.",
+            "children": {
+              "type": "array",
+              "description": "Array of component blocks and elements. Can be nested arbitrarily deep through 'block' components.",
+              "items": {
+                "type": "object",
+                "oneOf": [
+                  {"$ref": "#/componentTypes/block"},
+                  {"$ref": "#/componentTypes/outputField"},
+                  {"$ref": "#/componentTypes/button"},
+                  {"$ref": "#/componentTypes/image"},
+                  {"$ref": "#/componentTypes/text"},
+                  {"$ref": "#/componentTypes/icon"},
+                  {"$ref": "#/componentTypes/datatable"},
+                  {"$ref": "#/componentTypes/childCard"}
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "componentTypes": {
+    "block": {
+      "description": "A layout container (row/column wrapper) that groups child elements. Used for structural layout control.",
+      "fields": {
+        "type": {"type": "string", "value": "block", "required": true},
+        "class": {"type": "string", "required": false, "description": "CSS class names applied to the block container."},
+        "show": {"type": "string", "required": false, "description": "Conditional visibility formula or boolean."},
+        "children": {"type": "array", "required": false, "description": "Nested child components within this block."},
+        "style": {"type": "string", "required": false, "description": "Inline CSS styles."}
+      }
+    },
+    "outputField": {
+      "description": "Displays a field value from the data source in a label/value format. The most common display element.",
+      "fields": {
+        "type": {"type": "string", "value": "outputField", "required": true},
+        "label": {"type": "string", "required": false, "description": "Label displayed above or beside the value."},
+        "value": {"type": "string", "required": true, "description": "Data binding expression referencing a field from the data source. E.g., '{record.Name}' or '{Name}'."},
+        "valueType": {"type": "string", "required": false, "default": "text", "enum": ["text","currency","date","datetime","number","percent","boolean","url","email","phone"], "description": "Controls how the value is formatted/rendered."},
+        "show": {"type": "string", "required": false, "description": "Conditional show formula."},
+        "class": {"type": "string", "required": false, "description": "CSS classes for styling."}
+      }
+    },
+    "button": {
+      "description": "An action trigger element rendered as a button. Clicking executes one or more actions from the state's actionList.",
+      "fields": {
+        "type": {"type": "string", "value": "button", "required": true},
+        "label": {"type": "string", "required": true, "description": "Text displayed on the button."},
+        "action": {"type": "string", "required": false, "description": "Name of the action or actionList to execute when clicked."},
+        "variant": {"type": "string", "required": false, "default": "neutral", "enum": ["neutral","brand","destructive","success","inverse"], "description": "SLDS button variant for visual styling."},
+        "show": {"type": "string", "required": false, "description": "Conditional visibility formula."},
+        "class": {"type": "string", "required": false, "description": "Additional CSS classes."},
+        "disabled": {"type": "string", "required": false, "description": "Formula or boolean to disable the button."}
+      }
+    },
+    "image": {
+      "description": "Displays an image within the card. URL can be static or dynamically bound to data.",
+      "fields": {
+        "type": {"type": "string", "value": "image", "required": true},
+        "src": {"type": "string", "required": true, "description": "URL of the image to display. Supports data binding: '{imageUrl}'."},
+        "alt": {"type": "string", "required": false, "description": "Alt text for accessibility."},
+        "width": {"type": "string", "required": false, "description": "CSS width value (e.g., '100px', '50%')."},
+        "height": {"type": "string", "required": false, "description": "CSS height value."},
+        "show": {"type": "string", "required": false, "description": "Conditional visibility."}
+      }
+    },
+    "text": {
+      "description": "Displays static or data-bound text. Supports HTML and Merge Field syntax.",
+      "fields": {
+        "type": {"type": "string", "value": "text", "required": true},
+        "value": {"type": "string", "required": true, "description": "Text content. Supports {fieldName} data bindings and HTML markup."},
+        "class": {"type": "string", "required": false, "description": "CSS classes for styling."},
+        "show": {"type": "string", "required": false, "description": "Conditional visibility formula."}
+      }
+    },
+    "icon": {
+      "description": "Renders an SLDS icon within the card.",
+      "fields": {
+        "type": {"type": "string", "value": "icon", "required": true},
+        "iconName": {"type": "string", "required": true, "description": "SLDS icon name in 'category:name' format (e.g., 'standard:account', 'utility:check')."},
+        "size": {"type": "string", "required": false, "default": "small", "enum": ["xx-small","x-small","small","medium","large"], "description": "Icon size."},
+        "variant": {"type": "string", "required": false, "description": "Icon color variant (e.g., 'success', 'error', 'warning')."},
+        "show": {"type": "string", "required": false, "description": "Conditional visibility."}
+      }
+    },
+    "datatable": {
+      "description": "Displays a tabular list of records using SLDS datatable. Used in repeatable cards or to show related lists.",
+      "fields": {
+        "type": {"type": "string", "value": "datatable", "required": true},
+        "columns": {"type": "array", "required": true, "description": "Column definitions. Each item has 'label', 'fieldName', 'type', and optional 'sortable' properties."},
+        "data": {"type": "string", "required": true, "description": "Data binding path to the array of records to display (e.g., '{records}')."},
+        "keyField": {"type": "string", "required": false, "default": "Id", "description": "Unique field used as row key."},
+        "hideCheckboxColumn": {"type": "boolean", "required": false, "default": true, "description": "Hides row selection checkboxes."},
+        "enableInfiniteLoading": {"type": "boolean", "required": false, "default": false, "description": "Enables infinite scroll for large datasets."}
+      }
+    },
+    "childCard": {
+      "description": "Embeds another FlexCard as a child component within this card's layout.",
+      "fields": {
+        "type": {"type": "string", "value": "childCard", "required": true},
+        "name": {"type": "string", "required": true, "description": "Developer name of the child FlexCard."},
+        "title": {"type": "string", "required": false, "description": "Section title for this embedded card."},
+        "show": {"type": "string", "required": false, "description": "Conditional visibility formula."}
+      }
+    }
+  },
+  "events": {
+    "description": "Array of event listener/publisher definitions on this FlexCard. Enables pub/sub communication between FlexCards and OmniScripts.",
+    "type": "array",
+    "items": {
+      "eventname": {
+        "type": "string",
+        "required": true,
+        "description": "The event name to listen for or publish. Used to coordinate cross-component communication."
+      },
+      "eventtype": {
+        "type": "string",
+        "required": true,
+        "enum": ["pubsub", "event"],
+        "description": "'pubsub' uses the OmniStudio pub/sub bus for cross-component messaging. 'event' is a standard LWC custom event."
+      },
+      "channelname": {
+        "type": "string",
+        "required": false,
+        "description": "Pub/sub channel name for routing events to the correct subscribers."
+      },
+      "actionList": {
+        "type": "array",
+        "required": false,
+        "description": "Actions to execute when this event fires. Same structure as state actions."
+      }
+    }
+  },
+  "actionList": {
+    "description": "Defines the list of actions executed by buttons, events, or state triggers. Each action in the list runs sequentially.",
+    "type": "array",
+    "actionTypes": {
+      "updateOmniScript": {
+        "description": "Updates data in a sibling or parent OmniScript's JSON data node.",
+        "fields": {
+          "type": {"type": "string", "value": "updateOmniScript"},
+          "name": {"type": "string", "description": "OmniScript data path to update."},
+          "value": {"type": "string", "description": "Value to set (supports {fieldName} binding)."}
+        }
+      },
+      "navigate": {
+        "description": "Navigates the user to a URL or Salesforce page.",
+        "fields": {
+          "type": {"type": "string", "value": "navigate"},
+          "navigateUrl": {"type": "string", "required": true, "description": "Destination URL. Supports {fieldName} bindings."},
+          "target": {"type": "string", "default": "_self", "description": "Browser target ('_self', '_blank')."}
+        }
+      },
+      "invokeMethod": {
+        "description": "Invokes a named method on the FlexCard or a child component.",
+        "fields": {
+          "type": {"type": "string", "value": "invokeMethod"},
+          "methodName": {"type": "string", "required": true, "description": "Name of the method to invoke."},
+          "params": {"type": "object", "description": "Parameters to pass to the method."}
+        }
+      },
+      "runIP": {
+        "description": "Executes an Integration Procedure and optionally refreshes the card data.",
+        "fields": {
+          "type": {"type": "string", "value": "runIP"},
+          "integrationProcedureKey": {"type": "string", "required": true, "description": "Type_SubType of the IP to run."},
+          "extraPayload": {"type": "object", "description": "Additional data passed to the IP."},
+          "refreshCard": {"type": "boolean", "default": false, "description": "When true, refreshes the card data after IP execution."}
+        }
+      },
+      "openCard": {
+        "description": "Opens another FlexCard in a modal or a new context.",
+        "fields": {
+          "type": {"type": "string", "value": "openCard"},
+          "cardName": {"type": "string", "required": true, "description": "Developer name of the FlexCard to open."},
+          "params": {"type": "object", "description": "Context parameters passed to the opened card."}
+        }
+      },
+      "deleteRecord": {
+        "description": "Deletes a Salesforce record using the record's Id.",
+        "fields": {
+          "type": {"type": "string", "value": "deleteRecord"},
+          "recordId": {"type": "string", "required": true, "description": "Id of the record to delete. E.g., '{Id}'."}
+        }
+      },
+      "pubsub": {
+        "description": "Publishes an event on the OmniStudio pub/sub bus.",
+        "fields": {
+          "type": {"type": "string", "value": "pubsub"},
+          "eventName": {"type": "string", "required": true, "description": "Event name to publish."},
+          "payload": {"type": "object", "description": "Event payload data."}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,384 @@
+{
+  "version": "1.1.0",
+  "description": "Machine-readable registry of all agentic skills in the OmniStudio Skills Platform.",
+  "updated_at": "2026-05-27",
+  "skills": [
+    {
+      "id": "vlocity-architecture-mapper",
+      "name": "Vlocity Architecture Mapper",
+      "directory": "skills/vlocity-architecture-mapper",
+      "description": "Traces OmniStudio dependency chains (OmniScripts → Integration Procedures → DataRaptors) and generates architecture documentation.",
+      "trigger_keywords": [
+        "map vlocity",
+        "omnistudio architecture",
+        "vlocity dependencies",
+        "trace omniscript"
+      ],
+      "risk_level": "low",
+      "category": "development",
+      "required_mcp_servers": [
+        "filesystem"
+      ],
+      "optional_mcp_servers": [],
+      "scripts": [
+        "scripts/trace_dependencies.py"
+      ],
+      "dependencies": {
+        "skills": [],
+        "env_vars": [],
+        "tools": [
+          "python3"
+        ]
+      },
+      "artifacts": {
+        "input": [
+          "vlocity_datapack_directory"
+        ],
+        "output": [
+          "architecture_map.md",
+          "dependency_graph.mermaid"
+        ]
+      },
+      "modes": [
+        "standard",
+        "detailed"
+      ],
+      "actions": [
+        "read-only"
+      ],
+      "changelog_version": "1.0.0",
+      "suggested_model_tier": "sonnet-class"
+    },
+    {
+      "id": "vlocity-dependency-indexer",
+      "name": "Vlocity/OmniStudio Dependency Indexer",
+      "directory": "skills/vlocity-dependency-indexer",
+      "description": "Foundation skill. Builds and maintains pre-computed dependency indices for Vlocity/OmniStudio metadata. Enables offline full-graph analysis, deep recursive element traversal, and journey documentation generation. Used by other Vlocity skills for graph-aware functionality. Impact analysis is handled by vlocity-impact-analyzer.",
+      "trigger_keywords": [
+        "index omnistudio dependencies",
+        "build dependency map",
+        "vlocity dependency index",
+        "map all omnistudio",
+        "dependency indexer"
+      ],
+      "risk_level": "low",
+      "category": "development",
+      "required_mcp_servers": [
+        "filesystem"
+      ],
+      "optional_mcp_servers": [],
+      "scripts": [
+        "scripts/build_index.py"
+      ],
+      "dependencies": {
+        "skills": [
+          "vlocity-architecture-mapper"
+        ],
+        "env_vars": [],
+        "tools": [
+          "python3",
+          "git"
+        ]
+      },
+      "artifacts": {
+        "input": [
+          "vlocity_datapack_directory"
+        ],
+        "output": [
+          "dependency-index/index.json",
+          "dependency-index/summary.md",
+          "dependency-index/journeys/*.md"
+        ]
+      },
+      "modes": [
+        "init",
+        "delta",
+        "element",
+        "document"
+      ],
+      "actions": [
+        "read-only"
+      ],
+      "changelog_version": "1.0.0",
+      "suggested_model_tier": "sonnet-class"
+    },
+    {
+      "id": "vlocity-datapack-reviewer",
+      "name": "Vlocity DataPack Reviewer",
+      "directory": "skills/vlocity-datapack-reviewer",
+      "description": "Static analysis on Vlocity DataPacks (OmniScripts, IPs, DataRaptors) to identify architectural risks, performance bottlenecks, and hardcoded values. Optionally enriches findings with blast radius context from vlocity-dependency-indexer.",
+      "trigger_keywords": [
+        "review datapack",
+        "datapack review",
+        "vlocity review",
+        "omniscript review"
+      ],
+      "risk_level": "low",
+      "category": "development",
+      "required_mcp_servers": [
+        "filesystem"
+      ],
+      "optional_mcp_servers": [],
+      "scripts": [
+        "scripts/analyze_datapacks.py"
+      ],
+      "dependencies": {
+        "skills": [
+          "vlocity-dependency-indexer"
+        ],
+        "env_vars": [],
+        "tools": [
+          "python3"
+        ]
+      },
+      "artifacts": {
+        "input": [
+          "vlocity_datapack_directory"
+        ],
+        "output": [
+          "datapack_review_report.md"
+        ]
+      },
+      "modes": [
+        "standard"
+      ],
+      "actions": [
+        "read-only"
+      ],
+      "changelog_version": "1.0.0",
+      "suggested_model_tier": "sonnet-class"
+    },
+    {
+      "id": "vlocity-generator",
+      "name": "Vlocity DataPack Generator",
+      "directory": "skills/vlocity-generator",
+      "description": "Generates and modifies Vlocity/OmniStudio DataPack JSON files (DataRaptors, Integration Procedures) using schema-aware templates. Supports managed package and native OmniStudio schemas. Optionally validates referenced components against vlocity-dependency-indexer.",
+      "trigger_keywords": [
+        "generate vlocity datapack",
+        "create dataraptor",
+        "create integration procedure",
+        "vlocity generator",
+        "generate ip",
+        "generate dr"
+      ],
+      "risk_level": "low",
+      "category": "development",
+      "required_mcp_servers": [
+        "filesystem"
+      ],
+      "optional_mcp_servers": [],
+      "scripts": [
+        "scripts/generate_datapack.py"
+      ],
+      "dependencies": {
+        "skills": [
+          "vlocity-dependency-indexer"
+        ],
+        "env_vars": [],
+        "tools": [
+          "python3"
+        ]
+      },
+      "artifacts": {
+        "input": [],
+        "output": []
+      },
+      "modes": [
+        "standard"
+      ],
+      "actions": [
+        "read-write"
+      ],
+      "changelog_version": "1.0.0",
+      "suggested_model_tier": "sonnet-class"
+    },
+    {
+      "id": "vlocity-tester",
+      "name": "Vlocity Tester",
+      "directory": "skills/vlocity-tester",
+      "description": "Tests deployed Vlocity DataRaptors and Integration Procedures via Salesforce REST API. Supports managed package and native OmniStudio endpoints. Optionally generates regression test scope from vlocity-dependency-indexer.",
+      "trigger_keywords": [
+        "test vlocity",
+        "test dataraptor",
+        "test integration procedure",
+        "invoke ip",
+        "invoke dr",
+        "deploy and test vlocity"
+      ],
+      "risk_level": "medium",
+      "category": "development",
+      "required_mcp_servers": [
+        "filesystem"
+      ],
+      "optional_mcp_servers": [],
+      "scripts": [
+        "scripts/invoke_ip.py",
+        "scripts/invoke_dr.py",
+        "scripts/compare_output.py",
+        "scripts/deploy_and_test.sh"
+      ],
+      "dependencies": {
+        "skills": [
+          "vlocity-dependency-indexer"
+        ],
+        "env_vars": [],
+        "tools": [
+          "python3",
+          "sf",
+          "vlocity"
+        ]
+      },
+      "artifacts": {
+        "input": [],
+        "output": []
+      },
+      "modes": [
+        "standard"
+      ],
+      "actions": [
+        "read-write"
+      ],
+      "changelog_version": "1.0.0",
+      "suggested_model_tier": "sonnet-class"
+    },
+    {
+      "id": "vlocity-flexcard-helper",
+      "name": "Vlocity FlexCard & OmniScript Helper",
+      "directory": "skills/vlocity-flexcard-helper",
+      "description": "Parses, structures, and validates complex FlexCard and OmniScript visual component metadata. Helps compile client-side LWCs and prepare visual validation. Optionally resolves full data chains from vlocity-dependency-indexer.",
+      "trigger_keywords": [
+        "parse flexcard",
+        "parse omniscript",
+        "flexcard helper",
+        "omniscript helper",
+        "validate flexcard",
+        "validate omniscript"
+      ],
+      "risk_level": "low",
+      "category": "development",
+      "required_mcp_servers": [
+        "filesystem"
+      ],
+      "optional_mcp_servers": [],
+      "scripts": [
+        "scripts/parse_flexcard.py",
+        "scripts/parse_omniscript.py"
+      ],
+      "dependencies": {
+        "skills": [
+          "vlocity-dependency-indexer"
+        ],
+        "env_vars": [],
+        "tools": [
+          "python3"
+        ]
+      },
+      "artifacts": {
+        "input": [],
+        "output": []
+      },
+      "modes": [
+        "standard"
+      ],
+      "actions": [
+        "read-only"
+      ],
+      "changelog_version": "1.0.0",
+      "suggested_model_tier": "sonnet-class"
+    },
+    {
+      "id": "vlocity-impact-analyzer",
+      "name": "OmniStudio Impact Analyzer",
+      "directory": "skills/vlocity-impact-analyzer",
+      "description": "Intelligent change impact analysis for OmniStudio/Vlocity components. Determines blast radius, loads pre-computed documentation from vlocity-dependency-indexer, and provides LLM-driven analysis of upstream callers and downstream dependencies.",
+      "trigger_keywords": [
+        "impact analysis",
+        "blast radius",
+        "what breaks if I change",
+        "change impact",
+        "analyze component impact",
+        "who calls this IP"
+      ],
+      "risk_level": "low",
+      "category": "development",
+      "required_mcp_servers": [
+        "filesystem"
+      ],
+      "optional_mcp_servers": [],
+      "scripts": [],
+      "dependencies": {
+        "skills": [
+          "vlocity-dependency-indexer"
+        ],
+        "env_vars": [],
+        "tools": [
+          "python3"
+        ]
+      },
+      "artifacts": {
+        "input": [
+          "vlocity_datapack_directory",
+          "component_name"
+        ],
+        "output": [
+          "dependency-index/journeys/<element>-journey.md",
+          "dependency-index/flows/<element>-flow.md"
+        ]
+      },
+      "modes": [
+        "analyze",
+        "blast-radius",
+        "impact-report"
+      ],
+      "actions": [
+        "read-only"
+      ],
+      "changelog_version": "1.0.0",
+      "suggested_model_tier": "sonnet-class",
+      "mcp_tool": "vlocity_analysis"
+    }
+  ],
+  "processes": [
+    {
+      "id": "vlocity-analysis",
+      "name": "Vlocity Component Analysis (Process)",
+      "directory": "processes/vlocity-analysis",
+      "description": "Process layer for Vlocity component impact analysis. Replaces multi-step SKILL.md orchestration with deterministic Python code. Exposes vlocity_analysis MCP tool for Claude Desktop access.",
+      "mcp_tool": "vlocity_analysis",
+      "type": "process",
+      "trigger_keywords": [
+        "analyze component impact",
+        "what breaks if I change this",
+        "blast radius",
+        "component dependencies"
+      ],
+      "risk_level": "low",
+      "category": "development",
+      "optional_mcp_servers": [],
+      "dependencies": {
+        "skills": [
+          "vlocity-dependency-indexer"
+        ],
+        "env_vars": [
+          "ANTHROPIC_API_KEY"
+        ],
+        "tools": [
+          "python3"
+        ]
+      },
+      "modes": [
+        "analyze",
+        "blast-radius",
+        "impact-report",
+        "docs-only"
+      ],
+      "actions": [
+        "read-only",
+        "write-docs"
+      ],
+      "changelog_version": "1.0.0",
+      "suggested_model_tier": "sonnet-class",
+      "note": "MCP interface for Claude Desktop users. Claude Code users can use /vlocity-impact-analyzer skill instead."
+    }
+  ]
+}

@@ -1,0 +1,617 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ip_element_types.schema.json",
+  "title": "Integration Procedure Element Types",
+  "description": "Describes all supported element types within Vlocity/OmniStudio Integration Procedures, their PropertySetConfig fields, types, defaults, and descriptions.",
+  "elementTypes": {
+    "Set Values": {
+      "description": "Sets one or more output variable values directly within the IP context. Can use static values, formulas, or references to existing context variables using %varName% syntax.",
+      "suffix": "_SV",
+      "usedIn": ["IP", "OmniScript"],
+      "propertySetConfig": {
+        "elementValueMap": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "A map of key-value pairs where each key is the output variable name and each value is a static value or %variable% reference to set."
+        },
+        "formulaMap": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "A map of key-formula pairs where formulas use OmniStudio formula syntax (e.g., IF, CONCAT, ADD). Keys are output variable names, values are formula strings."
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Human-readable label for this element as displayed in the designer UI."
+        },
+        "show": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Whether this element is visible in the OmniStudio designer canvas."
+        },
+        "useFormulas": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, the formulaMap is used instead of (or in addition to) elementValueMap to evaluate dynamic expressions before assigning output values."
+        },
+        "executionConditionalFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "A formula string that evaluates to true/false. When false, this element is skipped at runtime. Supports %variable% interpolation."
+        }
+      }
+    },
+    "Remote Action": {
+      "description": "Invokes an Apex class method (a Vlocity Remote Action) from within the Integration Procedure. Supports synchronous Apex execution with structured input/output mapping.",
+      "suffix": "_RA",
+      "usedIn": ["IP"],
+      "propertySetConfig": {
+        "remoteClass": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The fully-qualified Apex class name that implements the remote action. Must implement the vlocity_cmt.VlocityOpenInterface or similar interface."
+        },
+        "remoteMethod": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The Apex method name to invoke on the remoteClass. This method receives the input map and must return an output map."
+        },
+        "additionalInput": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Extra input fields passed to the Apex method beyond the standard IP context. Supports %variable% references and static values. May contain an 'inputFields' array for structured input mapping."
+        },
+        "additionalOutput": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Mapping of fields from the Apex response to IP output variables. Keys are target variable names, values are source paths in the Apex response."
+        },
+        "sendOnlyAdditionalInput": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, only the additionalInput map is sent to the Apex method, excluding the full IP context/input node. Improves performance by reducing payload size."
+        },
+        "failOnStepError": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "When true, a failure in this Remote Action causes the entire IP execution to fail and stop. When false, execution continues to the next step."
+        },
+        "failureConditionalFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "A formula evaluated after execution to determine if the result should be treated as a failure. Overrides failOnStepError if provided."
+        },
+        "executionConditionalFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "A formula that must evaluate to true for this element to execute. If false, the element is skipped entirely."
+        },
+        "chainOnStep": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "The name of a previous IP step whose output should be chained/merged into the input of this Remote Action."
+        },
+        "remoteTimeout": {
+          "type": "integer",
+          "required": false,
+          "default": 30000,
+          "description": "Timeout in milliseconds for the Apex callout. Defaults to 30000ms (30 seconds)."
+        },
+        "preTransformBundle": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Name of a DataRaptor Transform bundle to run on the input before sending to the remote action."
+        },
+        "postTransformBundle": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Name of a DataRaptor Transform bundle to run on the output after receiving the remote action response."
+        }
+      }
+    },
+    "DataRaptor Extract Action": {
+      "description": "Queries Salesforce data using a DataRaptor Extract bundle. Retrieves SObject records and maps them to IP output variables.",
+      "suffix": "_DRE",
+      "usedIn": ["IP", "OmniScript"],
+      "propertySetConfig": {
+        "bundle": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The API name (DeveloperName) of the DataRaptor Extract bundle to execute."
+        },
+        "extraPayload": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Additional key-value pairs merged into the input passed to the DataRaptor bundle. Supports %variable% references."
+        },
+        "chainOnStep": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "The step name whose output is used as the input for this DataRaptor action, chaining data through the pipeline."
+        },
+        "executionConditionalFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Formula that must evaluate to true to execute this step. Skipped if false."
+        },
+        "failOnStepError": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "If true, errors from the DataRaptor Extract will halt IP execution."
+        },
+        "preTransformBundle": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "DataRaptor Transform bundle applied to input before the extract runs."
+        },
+        "postTransformBundle": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "DataRaptor Transform bundle applied to the extract output."
+        },
+        "sendOnlyExtraPayload": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, only extraPayload is passed to the DataRaptor bundle, not the full IP context."
+        }
+      }
+    },
+    "DataRaptor Turbo Action": {
+      "description": "A high-performance, cached version of the DataRaptor Extract that uses platform cache or in-memory caching to avoid repeated SOQL queries for the same data within a transaction.",
+      "suffix": "_DREAT",
+      "usedIn": ["IP", "OmniScript"],
+      "propertySetConfig": {
+        "bundle": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The API name of the DataRaptor Turbo Extract bundle."
+        },
+        "extraPayload": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Additional key-value pairs passed to the Turbo bundle as input."
+        },
+        "chainOnStep": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Step name to chain input from."
+        },
+        "executionConditionalFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Conditional formula to determine if this step executes."
+        },
+        "failOnStepError": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Halt IP on turbo action failure."
+        }
+      }
+    },
+    "DataRaptor Post Action": {
+      "description": "Executes a DataRaptor Load bundle to write/upsert data into Salesforce SObjects. Used for DML operations from within an IP.",
+      "suffix": "_DRPA",
+      "usedIn": ["IP"],
+      "propertySetConfig": {
+        "bundle": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The API name of the DataRaptor Load bundle to execute for data posting/upserting."
+        },
+        "extraPayload": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Additional data merged into the input payload sent to the DataRaptor Load bundle."
+        },
+        "chainOnStep": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Chain a previous step's output as input to this action."
+        },
+        "executionConditionalFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Conditional formula; skips this step if evaluates to false."
+        },
+        "failOnStepError": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Halt the IP if the DataRaptor Load fails."
+        },
+        "preTransformBundle": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Transform bundle applied to input before sending to the Load bundle."
+        },
+        "postTransformBundle": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Transform bundle applied to the output of the Load bundle."
+        },
+        "sendOnlyExtraPayload": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, sends only extraPayload to the DataRaptor Load, not the full IP context."
+        }
+      }
+    },
+    "DataRaptor Transform Action": {
+      "description": "Executes a DataRaptor Transform bundle to reshape, filter, or restructure JSON data within the IP pipeline. No Salesforce DML or SOQL is performed.",
+      "suffix": "_DRT",
+      "usedIn": ["IP"],
+      "propertySetConfig": {
+        "bundle": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The API name of the DataRaptor Transform bundle to execute."
+        },
+        "extraPayload": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Additional key-value pairs included in the input to the Transform bundle."
+        },
+        "preTransformBundle": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Another Transform bundle to run on the input before the primary transform."
+        },
+        "postTransformBundle": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Another Transform bundle to run on the output of the primary transform."
+        },
+        "chainOnStep": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Step name whose output feeds into this transform."
+        },
+        "executionConditionalFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Formula to conditionally skip this transform step."
+        }
+      }
+    },
+    "HTTP Action": {
+      "description": "Makes an HTTP/REST callout to an external web service from within the IP. Requires a Named Credential or endpoint configured in Salesforce Remote Site Settings.",
+      "suffix": "_HTTP",
+      "usedIn": ["IP"],
+      "propertySetConfig": {
+        "restPath": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The URL or Named Credential path for the HTTP callout. E.g., 'callout:MyNamedCredential/api/v1/resource'. Supports %variable% interpolation."
+        },
+        "restHttpMethod": {
+          "type": "string",
+          "required": true,
+          "default": "GET",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+          "description": "The HTTP method to use for the callout."
+        },
+        "restHeaders": {
+          "type": "object",
+          "required": false,
+          "default": {"Content-Type": "application/json"},
+          "description": "HTTP headers to include in the request. Each key is the header name, each value is the header value. Supports %variable% references."
+        },
+        "restPayload": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "The JSON body payload sent with POST/PUT/PATCH requests. Supports %variable% references for dynamic content."
+        },
+        "failOnStepError": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "When true, a non-2xx HTTP response causes the IP to fail. When false, execution continues."
+        },
+        "executionConditionalFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Conditional formula to determine if the HTTP callout should execute."
+        },
+        "chainOnStep": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Step name to chain input from."
+        },
+        "preTransformBundle": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Transform applied to input before HTTP callout."
+        },
+        "postTransformBundle": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Transform applied to HTTP response output."
+        },
+        "timeout": {
+          "type": "integer",
+          "required": false,
+          "default": 120000,
+          "description": "HTTP callout timeout in milliseconds. Max is 120000 (120s) per Salesforce limits."
+        }
+      }
+    },
+    "Response Action": {
+      "description": "Defines the final output structure of the Integration Procedure. Maps internal IP variables to the structured JSON response returned to callers (OmniScript, FlexCard, external API, etc.). Every IP should have exactly one Response Action as its final step.",
+      "suffix": "_RSA",
+      "usedIn": ["IP"],
+      "propertySetConfig": {
+        "responseJSONNode": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "The root JSON node name in the IP output. If set, the response is nested under this key. Leave blank to return the full IP context as-is."
+        },
+        "responseJSONPath": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "A JSONPath expression specifying which part of the IP context to include in the response. E.g., '$.stepName.records[*]'."
+        },
+        "postTransformBundle": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "DataRaptor Transform bundle applied to reshape the output just before it is returned as the IP response."
+        },
+        "executionConditionalFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "If false, this Response Action is skipped. Use with multiple Response Actions for conditional output paths."
+        }
+      }
+    },
+    "Integration Procedure Action": {
+      "description": "Calls another Integration Procedure from within the current IP. Supports synchronous and asynchronous chaining of IPs, with input/output mapping.",
+      "suffix": "_IPA",
+      "usedIn": ["IP", "OmniScript"],
+      "propertySetConfig": {
+        "integrationProcedureKey": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The ProcedureKey (Type_SubType) of the target Integration Procedure to call. E.g., 'Account_GetDetails'."
+        },
+        "extraPayload": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Additional key-value pairs merged into the input sent to the target IP."
+        },
+        "sendOnlyExtraPayload": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, only extraPayload is passed to the sub-IP, not the full calling IP context."
+        },
+        "remoteTimeout": {
+          "type": "integer",
+          "required": false,
+          "default": 30000,
+          "description": "Timeout in milliseconds for the sub-IP call."
+        },
+        "chainable": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, marks this IP Action as chainable, merging the sub-IP output into the current IP output node."
+        },
+        "executionConditionalFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Conditional formula; skips this IP Action if it evaluates to false."
+        },
+        "failOnStepError": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Halt calling IP if the sub-IP returns an error."
+        },
+        "chainOnStep": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Step name in the current IP whose output feeds as input to the sub-IP."
+        }
+      }
+    },
+    "Conditional Block": {
+      "description": "A container element that executes its child elements only when a specified condition formula evaluates to true. Acts as an if/else branching mechanism within an IP or OmniScript.",
+      "suffix": "_CB",
+      "usedIn": ["IP", "OmniScript"],
+      "propertySetConfig": {
+        "conditionFormula": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The formula or expression that determines whether child elements execute. Must evaluate to true/false. Supports %variable% references and OmniStudio formula functions."
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Human-readable label for this conditional block in the designer."
+        },
+        "show": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Controls designer canvas visibility."
+        }
+      }
+    },
+    "Loop Block": {
+      "description": "Iterates over a list/array variable, executing child elements once per iteration. Supports both fixed-count loops and collection-driven iteration.",
+      "suffix": "_LB",
+      "usedIn": ["IP"],
+      "propertySetConfig": {
+        "loopItemVariable": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The context variable name containing the array/list to iterate over. Each element in this array becomes the loop item during iteration."
+        },
+        "loopCountVariable": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Variable name holding an integer count for fixed-count loops (alternative to loopItemVariable for simple counting)."
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Human-readable label for this loop block."
+        },
+        "indexVariableName": {
+          "type": "string",
+          "required": false,
+          "default": "index",
+          "description": "The variable name used within the loop body to reference the current iteration index (0-based)."
+        },
+        "aggregateOutput": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, outputs from each iteration are aggregated into a list variable."
+        },
+        "breakConditionalFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Formula evaluated each iteration; when true, breaks out of the loop early."
+        }
+      }
+    },
+    "Try Catch Block": {
+      "description": "Wraps child elements in a try/catch error handling construct. If any child element fails, execution jumps to the catch block rather than stopping the entire IP.",
+      "suffix": "_TCB",
+      "usedIn": ["IP"],
+      "propertySetConfig": {
+        "label": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Human-readable label for this try-catch block."
+        },
+        "errorVariableName": {
+          "type": "string",
+          "required": false,
+          "default": "errorMessage",
+          "description": "The output variable name where the caught error message is stored when an exception occurs."
+        },
+        "show": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Controls visibility in the designer canvas."
+        }
+      }
+    }
+  },
+  "commonFields": {
+    "description": "Fields shared across most IP element types as part of the DataPack record structure (not PropertySetConfig).",
+    "fields": {
+      "Name": {
+        "type": "string",
+        "required": true,
+        "description": "The unique element name within the IP. Convention: descriptive name followed by type suffix (e.g., 'GetAccountData_DRE')."
+      },
+      "Type": {
+        "type": "string",
+        "required": true,
+        "description": "The element type identifier used by the OmniStudio runtime (e.g., 'DataRaptorExtractAction', 'SetValues', 'RemoteAction')."
+      },
+      "Active": {
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Whether this element is active and will execute at runtime."
+      },
+      "Level": {
+        "type": "integer",
+        "required": true,
+        "description": "Execution order/level of this element within the IP. Lower numbers execute first."
+      },
+      "ParentElementName": {
+        "type": "string",
+        "required": false,
+        "default": null,
+        "description": "Name of the parent container element (e.g., a Loop Block or Conditional Block). Null for top-level elements."
+      }
+    }
+  },
+  "variableInterpolation": {
+    "description": "How to reference variables in field values across element types.",
+    "syntax": "%variableName%",
+    "examples": [
+      {
+        "expression": "%recordId%",
+        "description": "References the 'recordId' variable from the IP input or a previous step output."
+      },
+      {
+        "expression": "%stepName:fieldName%",
+        "description": "References the 'fieldName' field from the output of the step named 'stepName'."
+      },
+      {
+        "expression": "%stepName:records:0:Id%",
+        "description": "References the Id field of the first record in the 'records' array from a previous step."
+      }
+    ]
+  }
+}

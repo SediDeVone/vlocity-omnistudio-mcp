@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Vlocity DataRaptor Load DataPack Schema",
+  "description": "Schema for Vlocity / OmniStudio DataRaptor Load DataPacks, supporting both managed package (%vlocity_namespace%) and native (OmniDataTransform) schema formats.",
+  "type": "object",
+  "required": [
+    "Name",
+    "Type",
+    "InputType",
+    "OutputType"
+  ],
+  "properties": {
+    "Name": {
+      "type": "string",
+      "description": "The name of the DataRaptor Load, unique in the org."
+    },
+    "Type": {
+      "type": "string",
+      "enum": ["Load"],
+      "description": "Must be 'Load' for DataRaptor Load."
+    },
+    "InputType": {
+      "type": "string",
+      "enum": ["JSON", "XML"],
+      "default": "JSON",
+      "description": "The type of input format accepted."
+    },
+    "OutputType": {
+      "type": "string",
+      "enum": ["CustomSObject"],
+      "default": "CustomSObject",
+      "description": "The type of output format produced (Salesforce SObjects)."
+    },
+    "GlobalKey": {
+      "type": "string",
+      "description": "The global unique key for deployment/migration. Managed field: %vlocity_namespace%__GlobalKey__c, Native field: GlobalKey."
+    },
+    "RollbackOnError": {
+      "type": "boolean",
+      "default": true,
+      "description": "Rollback transaction on error. Managed field: %vlocity_namespace%__RollbackOnError__c, Native field: IsRollbackOnError."
+    },
+    "UseAssignmentRules": {
+      "type": "boolean",
+      "default": false,
+      "description": "Apply Salesforce Lead/Case assignment rules upon upsert. Managed field: %vlocity_namespace%__UseAssignmentRules__c."
+    },
+    "CheckFieldLevelSecurity": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enforce field-level security checks when saving data. Managed field: %vlocity_namespace%__CheckFieldLevelSecurity__c, Native field: IsFieldLevelSecurityEnabled."
+    },
+    "IgnoreErrors": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to ignore errors for individual mapping rows. Managed field: %vlocity_namespace%__IgnoreErrors__c, Native field: IsErrorIgnored."
+    },
+    "OverwriteAllNullValues": {
+      "type": "boolean",
+      "default": false,
+      "description": "Include null values in save operation. Managed field: %vlocity_namespace%__OverwriteAllNullValues__c, Native field: IsNullInputsIncludedInOutput."
+    },
+    "Mappings": {
+      "type": "array",
+      "description": "List of mapping items defining target SObject insertions and updates.",
+      "items": {
+        "type": "object",
+        "required": [
+          "DomainObjectAPIName",
+          "InterfaceFieldAPIName"
+        ],
+        "properties": {
+          "DomainObjectAPIName": {
+            "type": "string",
+            "description": "The target SObject field API name being written to, e.g. 'Account:Phone', 'Account:Name'. Managed field: %vlocity_namespace%__DomainObjectAPIName__c, Native field: DomainObjectAPIName."
+          },
+          "InterfaceFieldAPIName": {
+            "type": "string",
+            "description": "The input JSON path mapping source, e.g., 'AccountPhone', 'AccountName' or formula string. Managed field: %vlocity_namespace%__InterfaceFieldAPIName__c, Native field: InterfaceFieldAPIName."
+          },
+          "InterfaceObjectName": {
+            "type": "string",
+            "description": "The SObject type to write to, e.g. 'Account', 'Contact'. Managed field: %vlocity_namespace%__InterfaceObjectName__c, Native field: InterfaceObjectName."
+          },
+          "DomainObjectFieldAPIName": {
+            "type": "string",
+            "description": "The specific field API name on the SObject (corresponds to the property after colon in DomainObjectAPIName)."
+          },
+          "DomainObjectCreationOrder": {
+            "type": "integer",
+            "default": 1,
+            "description": "Determines step sequence order in writing objects. Objects with creation order 1 are created before order 2, enabling parent-child ID mapping. Managed field: %vlocity_namespace%__DomainObjectCreationOrder__c, Native field: DomainObjectCreationOrder."
+          },
+          "IsUpsertKey": {
+            "type": "boolean",
+            "default": false,
+            "description": "Mark this field as a unique identifier for upsert operations (matching records to update instead of insert). Managed field: %vlocity_namespace%__UpsertKey__c, Native field: UpsertKey."
+          },
+          "IsRequiredForUpsert": {
+            "type": "boolean",
+            "default": false,
+            "description": "Indicates if this mapping item must have a value for upsert to proceed. Managed field: %vlocity_namespace%__IsRequiredForUpsert__c, Native field: IsRequiredForUpsert."
+          },
+          "IsDisabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this mapping item is currently disabled. Managed field: %vlocity_namespace%__IsDisabled__c, Native field: IsDisabled."
+          }
+        }
+      }
+    }
+  }
+}

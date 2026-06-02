@@ -1,0 +1,118 @@
+---
+name: vlocity-impact-analyzer
+description: Intelligent change impact analysis for OmniStudio/Vlocity components. Determines blast radius, loads pre-computed documentation from vlocity-dependency-indexer, and provides LLM-driven analysis of upstream callers and downstream dependencies.
+---
+
+# OmniStudio Impact Analyzer
+
+> **MCP Preferred Path:** If the `omnistudio` MCP server is configured in this session, **call the `vlocity_analysis` MCP tool directly** instead — it is faster and requires no manual orchestration. This SKILL.md remains available as a fallback for Claude Code sessions without MCP configured.
+
+## Overview
+
+Answers the critical question: **"What's the impact of changing this component?"**
+
+Uses the pre-computed dependency index from `vlocity-dependency-indexer` to perform intelligent, graph-aware impact analysis. Determines upstream callers (what will break), downstream dependencies (what must be retested), and risk level.
+
+## Workflow
+
+### Step 1 — Check for Documentation
+
+Look for `dependency-index/index.json` and `dependency-index/manifest.json` relative to the vlocity directory:
+
+**If NOT found:**
+```
+"I need to generate the full dependency index first. This will scan all OmniStudio
+components and build a complete dependency graph (~30 seconds).
+
+May I run: python build_index.py --generate-all <vlocity_dir> <parent_dir>?"
+```
+
+Wait for user confirmation. If denied, show the manual command and stop. If confirmed, run `--generate-all` automatically.
+
+**If found:** Proceed to Step 2.
+
+### Step 2 — Identify Component
+
+Load `index.json` and confirm the component exists in `nodes[]`.
+
+If not found, list similar component names and ask for clarification.
+
+### Step 3 — Generate Element Documentation
+
+Generate fresh documentation for the element and all transitive child Integration Procedures:
+
+```bash
+python build_index.py --analyze <vlocity_dir> <element_name>
+```
+
+This produces:
+- `dependency-index/journeys/<element_name>-journey.md` — architecture diagram + full dependency table
+- `dependency-index/flows/<element_name>-flow.md` — execution sequence with hierarchical component grouping
+- Child IP journeys and flows for all transitive dependencies
+- `dependency-index/<element_name>-analysis-bundle.json` — metadata for LLM analysis
+
+### Step 4 — Load Documentation Context
+
+Read in order:
+
+1. **`<element_name>-journey.md`** — Complete architecture overview with dependency table listing all direct and transitive dependencies
+2. **`<element_name>-flow.md`** — Component execution sequence showing the order and grouping of called components
+3. **Child IP journeys/flows** — From the analysis bundle's `generated_artifacts` list, load documentation for all child Integration Procedures
+
+### Step 5 — Perform Impact Analysis
+
+With full context loaded, answer the user's question with:
+
+**Upstream Impact (What will break):**
+- List all components that call this element
+- Group by type (OmniScripts, Integration Procedures, FlexCards)
+- Count callers to assess blast radius
+
+**Downstream Impact (What must be retested):**
+- All components this element depends on (from the All Dependencies table)
+- Group by type (DataRaptors, REST endpoints, Remote Actions)
+- Identify components with hidden dependencies (`preTransformBundle`, `postTransformBundle`)
+
+**Risk Assessment:**
+- **HIGH** — called by 5+ components (wide blast radius)
+- **MEDIUM** — called by 2–4 components (moderate impact)
+- **LOW** — called by 0–1 components (isolated change)
+
+**Recommended Test Scope:**
+- Retesting all upstream callers (direct + transitive)
+- Full regression testing for all downstream components
+- Integration testing at key junction points
+
+**Migration Notes (if applicable):**
+- If renaming: list all callers that need code updates
+- If removing: show dependencies that will break
+- If moving to a different folder: impact on any hard-coded paths
+
+## Modes
+
+- **`analyze`** (default) — Full 5-step impact analysis for a single component
+- **`blast-radius`** — Quick blast radius only (upstream callers + risk level)
+- **`impact-report`** — Detailed impact report with test scope recommendations
+
+## Integration with Other Skills
+
+- **Depends on:** `vlocity-dependency-indexer` (uses pre-computed index.json)
+- **Input:** vlocity directory + component name to analyze
+- **Output:** Full impact analysis + generated journey/flow documents
+
+## Best Practices
+
+- Run impact analysis **before** making changes, not after
+- For large changes, run analysis for both the component being changed AND all upstream callers
+- Use the recommended test scope to plan regression testing
+- For complex changes touching multiple components, analyze each separately then synthesize
+
+## Security & Guardrails
+
+**Risk Classification:** 🟢 Low — Reads local index.json files. No external APIs. No destructive actions.
+
+**Data Sources:** `dependency-index/index.json` only (generated by vlocity-dependency-indexer from local Vlocity metadata).
+
+**Human Approval Gates:** None required — analysis is read-only informational.
+
+**Reference:** See [guardrails/GUARDRAILS_SPEC.md](../../guardrails/GUARDRAILS_SPEC.md) for full guardrail requirements.

@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Vlocity DataRaptor Extract DataPack Schema",
+  "description": "Schema for Vlocity / OmniStudio DataRaptor Extract DataPacks, supporting both managed package (%vlocity_namespace%) and native (OmniDataTransform) schema formats.",
+  "type": "object",
+  "required": [
+    "Name",
+    "Type",
+    "InputType",
+    "OutputType"
+  ],
+  "properties": {
+    "Name": {
+      "type": "string",
+      "description": "The name of the DataRaptor Extract, unique in the org."
+    },
+    "Type": {
+      "type": "string",
+      "enum": ["Extract"],
+      "description": "Must be 'Extract' for DataRaptor Extract."
+    },
+    "InputType": {
+      "type": "string",
+      "enum": ["JSON", "XML", "Custom"],
+      "default": "JSON",
+      "description": "The type of input format accepted."
+    },
+    "OutputType": {
+      "type": "string",
+      "enum": ["JSON", "XML", "CustomSObject"],
+      "default": "JSON",
+      "description": "The type of output format produced."
+    },
+    "InterfaceObject": {
+      "type": "string",
+      "description": "The primary interface/source object mapping name. Managed field: %vlocity_namespace%__InterfaceObject__c, Native field: SourceObject."
+    },
+    "GlobalKey": {
+      "type": "string",
+      "description": "The global unique key for deployment/migration. Managed field: %vlocity_namespace%__GlobalKey__c, Native field: GlobalKey."
+    },
+    "CheckFieldLevelSecurity": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enforce field-level security checks when retrieving data. Managed field: %vlocity_namespace%__CheckFieldLevelSecurity__c, Native field: IsFieldLevelSecurityEnabled."
+    },
+    "IgnoreErrors": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to ignore non-fatal errors during extraction. Managed field: %vlocity_namespace%__IgnoreErrors__c, Native field: IsErrorIgnored."
+    },
+    "RollbackOnError": {
+      "type": "boolean",
+      "default": false,
+      "description": "Rollback transaction on error (more relevant for Load but present). Managed field: %vlocity_namespace%__RollbackOnError__c, Native field: IsRollbackOnError."
+    },
+    "OverwriteAllNullValues": {
+      "type": "boolean",
+      "default": false,
+      "description": "Include null values in output rather than omitting them. Managed field: %vlocity_namespace%__OverwriteAllNullValues__c, Native field: IsNullInputsIncludedInOutput."
+    },
+    "OMplusSyncEnabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "OMplus synchronization flag (managed package only). Managed field: %vlocity_namespace%__OMplusSyncEnabled__c."
+    },
+    "Mappings": {
+      "type": "array",
+      "description": "List of mapping items defining query criteria and output mappings.",
+      "items": {
+        "type": "object",
+        "required": [
+          "DomainObjectAPIName",
+          "InterfaceFieldAPIName"
+        ],
+        "properties": {
+          "DomainObjectAPIName": {
+            "type": "string",
+            "description": "The output JSON path or domain object where retrieved field is placed. Managed field: %vlocity_namespace%__DomainObjectAPIName__c, Native field: DomainObjectAPIName."
+          },
+          "DomainObjectFieldAPIName": {
+            "type": "string",
+            "description": "Detailed API name of the target field if mapping directly to SObject (primarily for load but can be present)."
+          },
+          "InterfaceObjectName": {
+            "type": "string",
+            "description": "The Salesforce SObject API name being queried (e.g., 'Account', 'Contact'). Managed field: %vlocity_namespace%__InterfaceObjectName__c, Native field: InterfaceObjectName."
+          },
+          "InterfaceFieldAPIName": {
+            "type": "string",
+            "description": "The source SObject field API name being extracted (e.g., 'Name', 'Id', 'BillingStreet') or formula string if mapping item is a formula. Managed field: %vlocity_namespace%__InterfaceFieldAPIName__c, Native field: InterfaceFieldAPIName."
+          },
+          "FilterGroup": {
+            "type": "integer",
+            "default": 0,
+            "description": "Grouping index for conditional filters (corresponds to AND/OR groups). Managed field: %vlocity_namespace%__FilterGroup__c, Native field: FilterGroup."
+          },
+          "FilterOperator": {
+            "type": "string",
+            "enum": ["=", "<>", "LIKE", "IN", "NOT IN", "LIMIT", "ORDER BY", "OFFSET", ">", "<", ">=", "<="],
+            "description": "The operator to apply when filtering SObjects. Managed field: %vlocity_namespace%__FilterOperator__c, Native field: FilterOperator."
+          },
+          "FilterValue": {
+            "type": "string",
+            "description": "The parameter or literal to match against. Use format 'Id' for input parameters or inline literals. Managed field: %vlocity_namespace%__FilterValue__c, Native field: FilterValue."
+          },
+          "IsDisabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this mapping item is currently disabled. Managed field: %vlocity_namespace%__IsDisabled__c, Native field: IsDisabled."
+          },
+          "IsRequiredForUpsert": {
+            "type": "boolean",
+            "default": false,
+            "description": "Required flag (managed package field: %vlocity_namespace%__IsRequiredForUpsert__c)."
+          },
+          "UpsertKey": {
+            "type": "boolean",
+            "default": false,
+            "description": "Upsert key flag (managed package field: %vlocity_namespace%__UpsertKey__c)."
+          }
+        }
+      }
+    }
+  }
+}

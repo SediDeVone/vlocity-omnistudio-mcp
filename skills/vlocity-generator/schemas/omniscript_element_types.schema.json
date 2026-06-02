@@ -1,0 +1,855 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "omniscript_element_types.schema.json",
+  "title": "OmniScript Element Types",
+  "description": "Describes all supported element types within Vlocity/OmniStudio OmniScripts, their PropertySetConfig fields, types, defaults, and descriptions.",
+  "elementTypes": {
+    "Step": {
+      "description": "A Step is the top-level container for UI screens in an OmniScript wizard flow. Each Step represents one page the user sees. Steps contain child elements (inputs, text blocks, action elements, etc.). Steps are navigated linearly by default but can be conditionally branched.",
+      "suffix": "_Step",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "label": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The user-visible step title shown in the OmniScript progress indicator/header."
+        },
+        "show": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Whether this step is visible in the designer. Setting to false hides the step."
+        },
+        "conditionFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Formula that, when false, causes the step to be skipped during wizard navigation."
+        },
+        "showFooter": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Controls whether the Previous/Next navigation footer is shown on this step."
+        },
+        "allowBack": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Whether the Previous button is shown/enabled for this step."
+        },
+        "customAction": {
+          "type": "string",
+          "required": false,
+          "default": "Next",
+          "description": "Label for the primary action button (Next/Submit) on this step."
+        },
+        "revalidateOnBack": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, re-runs validation rules when the user navigates back to this step."
+        }
+      }
+    },
+    "Text Block": {
+      "description": "Displays static or dynamic HTML/text content on a step. Used for instructions, labels, rich text, or templated messages. Can render HTML markup including links, lists, and formatted text.",
+      "suffix": "_TB",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "text": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "The static text or HTML string to display. Supports %variable% interpolation for dynamic content."
+        },
+        "HTMLTemplateId": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "ID or name of an HTML Template record used as the content source instead of the text field. Allows externally managed HTML content."
+        },
+        "show": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Controls visibility of this element on the step."
+        },
+        "conditionFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Formula that controls conditional visibility of this text block."
+        },
+        "controlWidth": {
+          "type": "integer",
+          "required": false,
+          "default": 12,
+          "enum": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+          "description": "Width of this element in SLDS grid columns (1-12). Default 12 = full width."
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Optional label displayed above the text block."
+        }
+      }
+    },
+    "Text Input": {
+      "description": "A free-text single-line or multi-line input field. Collects string data from the user and stores it in the OmniScript data JSON under the element's name.",
+      "suffix": "_TI",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "label": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The field label displayed to the user."
+        },
+        "required": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Makes this input mandatory before the user can proceed to the next step."
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Placeholder text shown inside the input when empty."
+        },
+        "maxLength": {
+          "type": "integer",
+          "required": false,
+          "default": 255,
+          "description": "Maximum number of characters allowed in the text input."
+        },
+        "minLength": {
+          "type": "integer",
+          "required": false,
+          "default": 0,
+          "description": "Minimum number of characters required."
+        },
+        "multiLine": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, renders as a textarea (multi-line) instead of a single-line input."
+        },
+        "rows": {
+          "type": "integer",
+          "required": false,
+          "default": 3,
+          "description": "Number of visible rows for multi-line text input."
+        },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, the field is displayed but cannot be edited by the user."
+        },
+        "defaultValue": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Default value pre-populated when the OmniScript loads. Supports %variable% interpolation."
+        },
+        "controlWidth": {
+          "type": "integer",
+          "required": false,
+          "default": 12,
+          "description": "SLDS grid column width (1-12)."
+        },
+        "show": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Controls visibility of this input."
+        },
+        "conditionFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Formula for conditional visibility/requirement."
+        },
+        "validationRegex": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Regular expression pattern for input validation. If set, input must match this pattern."
+        },
+        "validationRegexMessage": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Error message displayed when validationRegex fails."
+        }
+      }
+    },
+    "Number": {
+      "description": "A numeric input field that validates and collects number values (integers or decimals). Restricts input to numeric characters.",
+      "suffix": "_Num",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "label": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "Field label shown to the user."
+        },
+        "required": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Makes this field mandatory."
+        },
+        "defaultValue": {
+          "type": "number",
+          "required": false,
+          "default": null,
+          "description": "Default numeric value."
+        },
+        "minValue": {
+          "type": "number",
+          "required": false,
+          "default": null,
+          "description": "Minimum allowed numeric value."
+        },
+        "maxValue": {
+          "type": "number",
+          "required": false,
+          "default": null,
+          "description": "Maximum allowed numeric value."
+        },
+        "decimalPlaces": {
+          "type": "integer",
+          "required": false,
+          "default": 0,
+          "description": "Number of decimal places to display and allow."
+        },
+        "controlWidth": {
+          "type": "integer",
+          "required": false,
+          "default": 12,
+          "description": "SLDS grid column width."
+        },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Display only, no editing."
+        }
+      }
+    },
+    "Select": {
+      "description": "A dropdown or picklist input field allowing the user to choose from a predefined list of options. Options can be static or dynamically populated from a previous action output.",
+      "suffix": "_Sel",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "label": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "Field label shown to the user."
+        },
+        "required": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Makes selection mandatory."
+        },
+        "options": {
+          "type": "array",
+          "required": false,
+          "default": [],
+          "description": "Array of option objects with 'value' and 'label' properties for static option lists. E.g., [{\"value\":\"active\",\"label\":\"Active\"},{\"value\":\"inactive\",\"label\":\"Inactive\"}]"
+        },
+        "optionsSource": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Variable path to a dynamic list of options from a previous action (e.g., step output). Format: 'StepName:records'."
+        },
+        "optionsSourceLabel": {
+          "type": "string",
+          "required": false,
+          "default": "label",
+          "description": "Field name in the options source array used as the display label."
+        },
+        "optionsSourceValue": {
+          "type": "string",
+          "required": false,
+          "default": "value",
+          "description": "Field name in the options source array used as the stored value."
+        },
+        "defaultValue": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Default selected value."
+        },
+        "multiSelect": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, allows multiple selections (checkbox-style picklist)."
+        },
+        "controlWidth": {
+          "type": "integer",
+          "required": false,
+          "default": 12,
+          "description": "SLDS grid column width."
+        }
+      }
+    },
+    "Date": {
+      "description": "A date picker input field that collects a date value from the user using a calendar popup.",
+      "suffix": "_Dt",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "label": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "Field label."
+        },
+        "required": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Makes this date mandatory."
+        },
+        "defaultValue": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Default date in YYYY-MM-DD format. Supports %TODAY% special keyword."
+        },
+        "minDate": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Minimum selectable date (YYYY-MM-DD). Dates before this are disabled."
+        },
+        "maxDate": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Maximum selectable date (YYYY-MM-DD)."
+        },
+        "dateFormat": {
+          "type": "string",
+          "required": false,
+          "default": "MM/DD/YYYY",
+          "description": "Display format for the date. Uses locale-aware formatting."
+        },
+        "controlWidth": {
+          "type": "integer",
+          "required": false,
+          "default": 12,
+          "description": "SLDS grid column width."
+        }
+      }
+    },
+    "Checkbox": {
+      "description": "A boolean checkbox input element. Stores true/false in the OmniScript data JSON.",
+      "suffix": "_Chk",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "label": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "Label text displayed next to the checkbox."
+        },
+        "required": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, the checkbox must be checked to proceed."
+        },
+        "defaultValue": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Initial checked state of the checkbox."
+        },
+        "controlWidth": {
+          "type": "integer",
+          "required": false,
+          "default": 12,
+          "description": "SLDS grid column width."
+        }
+      }
+    },
+    "Radio": {
+      "description": "A radio button group allowing the user to select exactly one option from a set. Functionally similar to Select but displayed as radio buttons.",
+      "suffix": "_Rad",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "label": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "Group label shown above the radio buttons."
+        },
+        "required": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Makes selection mandatory."
+        },
+        "options": {
+          "type": "array",
+          "required": true,
+          "default": [],
+          "description": "Array of option objects [{\"value\":\"...\",\"label\":\"...\"}] defining the radio button choices."
+        },
+        "defaultValue": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Default selected value matching one of the option values."
+        },
+        "horizontal": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, radio buttons are displayed horizontally instead of vertically."
+        },
+        "controlWidth": {
+          "type": "integer",
+          "required": false,
+          "default": 12,
+          "description": "SLDS grid column width."
+        }
+      }
+    },
+    "Typeahead": {
+      "description": "An autocomplete/typeahead search field that queries Salesforce data as the user types. Used for lookup-style inputs (e.g., finding an Account by name).",
+      "suffix": "_TA",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "label": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "Field label shown to the user."
+        },
+        "required": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Makes this lookup mandatory."
+        },
+        "searchObject": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "Salesforce SObject API name to search (e.g., 'Account', 'Contact')."
+        },
+        "searchField": {
+          "type": "string",
+          "required": true,
+          "default": "Name",
+          "description": "The SObject field used for the search query (usually 'Name')."
+        },
+        "displayField": {
+          "type": "string",
+          "required": false,
+          "default": "Name",
+          "description": "The field displayed in suggestions dropdown."
+        },
+        "valueField": {
+          "type": "string",
+          "required": false,
+          "default": "Id",
+          "description": "The field stored as the selected value."
+        },
+        "searchFilter": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Additional SOQL WHERE filter applied to the typeahead search query."
+        },
+        "minChars": {
+          "type": "integer",
+          "required": false,
+          "default": 2,
+          "description": "Minimum characters typed before the search activates."
+        },
+        "maxResults": {
+          "type": "integer",
+          "required": false,
+          "default": 5,
+          "description": "Maximum number of results shown in the dropdown."
+        },
+        "controlWidth": {
+          "type": "integer",
+          "required": false,
+          "default": 12,
+          "description": "SLDS grid column width."
+        }
+      }
+    },
+    "Integration Procedure Action": {
+      "description": "Calls an Integration Procedure from within the OmniScript to perform server-side data operations (queries, DML, callouts). Can be triggered on step entry/exit or on user interaction.",
+      "suffix": "_IPA",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "integrationProcedureKey": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The ProcedureKey (Type_SubType) of the Integration Procedure to call. E.g., 'Account_GetDetails'."
+        },
+        "extraPayload": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Additional key-value pairs passed to the IP as extra input. Supports %variable% references."
+        },
+        "sendOnlyExtraPayload": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, sends only extraPayload to the IP instead of the full OmniScript data JSON."
+        },
+        "validationRequired": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, OmniScript validates current step fields before executing this IP Action."
+        },
+        "showSpinner": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Shows a loading spinner while the IP executes."
+        },
+        "autoTrigger": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, the IP Action fires automatically when the step is rendered (without user interaction)."
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Label for the trigger button if this is a user-triggered action."
+        },
+        "conditionFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Conditional formula for visibility/execution of this action."
+        }
+      }
+    },
+    "DataRaptor Extract Action": {
+      "description": "Queries Salesforce data using a DataRaptor Extract bundle from within the OmniScript. Used to pre-populate step fields with existing record data.",
+      "suffix": "_DREA",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "bundle": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The API name of the DataRaptor Extract bundle to run."
+        },
+        "extraPayload": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Additional input data passed to the DataRaptor bundle."
+        },
+        "autoTrigger": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Auto-fire on step load without user interaction."
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Label for manual trigger button."
+        },
+        "conditionFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Conditional visibility/execution formula."
+        }
+      }
+    },
+    "DataRaptor Turbo Action": {
+      "description": "Cached/high-performance DataRaptor Extract for OmniScript use. Same as DREA but uses platform caching for repeated queries.",
+      "suffix": "_DRTB",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "bundle": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The API name of the DataRaptor Turbo Extract bundle."
+        },
+        "extraPayload": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Additional input data for the Turbo bundle."
+        },
+        "autoTrigger": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Auto-execute on step load."
+        },
+        "conditionFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Conditional formula."
+        }
+      }
+    },
+    "Remote Action": {
+      "description": "Calls an Apex method directly from the OmniScript. Used when custom business logic in Apex is required beyond what DataRaptors/IPs support.",
+      "suffix": "_RA",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "remoteClass": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The Apex class name containing the remote method."
+        },
+        "remoteMethod": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The Apex method to invoke."
+        },
+        "additionalInput": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Extra input key-value pairs sent to the Apex method."
+        },
+        "autoTrigger": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Auto-fire on step load."
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Label for the action trigger button."
+        }
+      }
+    },
+    "Custom LWC": {
+      "description": "Embeds a custom Lightning Web Component within an OmniScript step. Used for highly customized UI elements not supported by standard OmniScript components.",
+      "suffix": "_CLWC",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "lwcName": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The API name of the Lightning Web Component to embed (e.g., 'c/myCustomComponent'). Use namespace prefix if applicable."
+        },
+        "extraPayload": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Data passed to the LWC as component attributes/properties."
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Label displayed above the custom LWC."
+        },
+        "show": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Controls visibility of the LWC element."
+        },
+        "controlWidth": {
+          "type": "integer",
+          "required": false,
+          "default": 12,
+          "description": "SLDS grid column width."
+        },
+        "conditionFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Conditional visibility formula."
+        }
+      }
+    },
+    "Navigate Action": {
+      "description": "A button or action element that navigates the user to a different URL, page, or Salesforce record when clicked. Used for post-submission navigation or external links.",
+      "suffix": "_NA",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "navigateUrl": {
+          "type": "string",
+          "required": true,
+          "default": "",
+          "description": "The URL to navigate to. Can be relative (e.g., '/lightning/r/Account/%accountId%/view') or absolute. Supports %variable% interpolation."
+        },
+        "target": {
+          "type": "string",
+          "required": false,
+          "default": "_self",
+          "enum": ["_self", "_blank", "_parent", "_top"],
+          "description": "Browser target for the navigation. '_self' replaces current window, '_blank' opens a new tab."
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "default": "Navigate",
+          "description": "Button label shown to the user."
+        },
+        "show": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Controls visibility."
+        },
+        "conditionFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Conditional formula for when this navigation is shown/executed."
+        }
+      }
+    },
+    "Set Values": {
+      "description": "Sets output variable values within the OmniScript data JSON. Used to compute or assign values between steps without a server callout.",
+      "suffix": "_SV",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "elementValueMap": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Map of target variable names to static or %variable%-interpolated values to set in the OmniScript JSON."
+        },
+        "formulaMap": {
+          "type": "object",
+          "required": false,
+          "default": {},
+          "description": "Map of target variable names to formula expressions evaluated and stored."
+        },
+        "useFormulas": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Enable formula evaluation in formulaMap."
+        },
+        "conditionFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Formula for conditional execution."
+        }
+      }
+    },
+    "Edit Block": {
+      "description": "A container element that groups multiple input/display elements together, typically used to represent a repeatable section or sub-form within a step.",
+      "suffix": "_EB",
+      "usedIn": ["OmniScript"],
+      "propertySetConfig": {
+        "label": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Label displayed as the block heading."
+        },
+        "repeatable": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "When true, users can add multiple instances of this edit block (repeating group)."
+        },
+        "minCount": {
+          "type": "integer",
+          "required": false,
+          "default": 0,
+          "description": "Minimum number of repeating instances required."
+        },
+        "maxCount": {
+          "type": "integer",
+          "required": false,
+          "default": 10,
+          "description": "Maximum number of repeating instances allowed."
+        },
+        "show": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Controls visibility."
+        },
+        "conditionFormula": {
+          "type": "string",
+          "required": false,
+          "default": "",
+          "description": "Conditional visibility formula."
+        }
+      }
+    }
+  },
+  "commonOSFields": {
+    "description": "Standard DataPack record fields present on all OmniScript elements.",
+    "fields": {
+      "Name": {
+        "type": "string",
+        "required": true,
+        "description": "Unique element name within the OmniScript. Convention: descriptive name + type suffix (e.g., 'EnterAccountName_TI')."
+      },
+      "Type": {
+        "type": "string",
+        "required": true,
+        "description": "OmniStudio element type string (e.g., 'Text', 'Select', 'IntegrationProcedureAction')."
+      },
+      "Active": {
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Whether this element is active."
+      },
+      "Order": {
+        "type": "integer",
+        "required": true,
+        "description": "Display order of this element within its parent Step or block. Lower numbers appear first."
+      },
+      "ParentElementName": {
+        "type": "string",
+        "required": false,
+        "default": null,
+        "description": "Name of the parent Step or Edit Block. Null for top-level step children."
+      }
+    }
+  },
+  "omniScriptKeys": {
+    "description": "How OmniScript source keys are structured.",
+    "format": "Type_SubType_Language",
+    "example": "AccountOnboarding_NewAccount_English",
+    "parts": {
+      "Type": "High-level category of the OmniScript (e.g., 'AccountOnboarding').",
+      "SubType": "Specific use case under the type (e.g., 'NewAccount').",
+      "Language": "Language variant (e.g., 'English'). English is the default."
+    }
+  }
+}

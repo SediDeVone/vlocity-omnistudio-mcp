@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-27T14:30:00.000000Z",
+  "branch": "main",
+  "prompts": [],
+  "skills": [
+    {
+      "name": "vlocity-architecture-mapper",
+      "path": "skills/vlocity-architecture-mapper/SKILL.md",
+      "category": "development",
+      "description": "Traces OmniStudio dependency chains (OmniScripts → Integration Procedures → DataRaptors) and generates architecture documentation.",
+      "files": [
+        "CHANGELOG.md",
+        "DOCUMENTATION.md",
+        "SKILL.md",
+        "scripts/extract_dependencies.py"
+      ]
+    },
+    {
+      "name": "vlocity-dependency-indexer",
+      "path": "skills/vlocity-dependency-indexer/SKILL.md",
+      "category": "development",
+      "description": "Builds and maintains pre-computed dependency indices for Vlocity/OmniStudio metadata. Supports full init scan, git-delta incremental updates, deep recursive element traversal, and journey documentation generation.",
+      "files": [
+        "CHANGELOG.md",
+        "DOCUMENTATION.md",
+        "SKILL.md",
+        "scripts/build_index.py"
+      ]
+    },
+    {
+      "name": "vlocity-datapack-reviewer",
+      "path": "skills/vlocity-datapack-reviewer/SKILL.md",
+      "category": "development",
+      "description": "Static analysis on Vlocity DataPacks (OmniScripts, IPs, DataRaptors) to identify architectural risks, performance bottlenecks, and hardcoded values.",
+      "files": [
+        "CHANGELOG.md",
+        "DOCUMENTATION.md",
+        "SKILL.md",
+        "scripts/review_datapack.py"
+      ]
+    },
+    {
+      "name": "vlocity-impact-analyzer",
+      "path": "skills/vlocity-impact-analyzer/SKILL.md",
+      "category": "development",
+      "description": "Intelligent change impact analysis for OmniStudio/Vlocity components. Determines blast radius, loads pre-computed documentation from vlocity-dependency-indexer, and provides LLM-driven analysis of upstream callers and downstream dependencies.",
+      "files": [
+        "CHANGELOG.md",
+        "DOCUMENTATION.md",
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "vlocity-generator",
+      "path": "skills/vlocity-generator/SKILL.md",
+      "category": "development",
+      "description": "Generates and modifies Vlocity/OmniStudio DataPack JSON files (DataRaptors, Integration Procedures) using schema-aware templates. Supports managed package and native OmniStudio schemas.",
+      "files": [
+        "CHANGELOG.md",
+        "DOCUMENTATION.md",
+        "SKILL.md",
+        "scripts/generate_datapack.py"
+      ]
+    },
+    {
+      "name": "vlocity-tester",
+      "path": "skills/vlocity-tester/SKILL.md",
+      "category": "development",
+      "description": "Tests deployed Vlocity DataRaptors and Integration Procedures via Salesforce REST API. Supports managed package and native OmniStudio endpoints.",
+      "files": [
+        "CHANGELOG.md",
+        "DOCUMENTATION.md",
+        "SKILL.md",
+        "scripts/invoke_ip.py",
+        "scripts/invoke_dr.py",
+        "scripts/compare_output.py",
+        "scripts/deploy_and_test.sh"
+      ]
+    },
+    {
+      "name": "vlocity-flexcard-helper",
+      "path": "skills/vlocity-flexcard-helper/SKILL.md",
+      "category": "development",
+      "description": "Parses, structures, and validates complex FlexCard and OmniScript visual component metadata. Helps compile client-side LWCs and prepare visual validation.",
+      "files": [
+        "CHANGELOG.md",
+        "DOCUMENTATION.md",
+        "SKILL.md",
+        "scripts/parse_flexcard.py",
+        "scripts/parse_omniscript.py"
+      ]
+    }
+  ]
+}
